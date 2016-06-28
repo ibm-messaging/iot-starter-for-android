@@ -37,10 +37,10 @@ MQTT is a lightweight messaging protocol that supports publish/subscribe messagi
 The topics used by this application can be seen in the table below:
 
 ##Topics
-|Topic|Sample Topic|Sample Message|
+|Topic|Sample Topic|Sample Messages|
 |:---------- |:---------- |:------------|
 |`iot-2/evt/<eventId>/fmt/json`|`iot-2/evt/touchmove/fmt/json`|`{"d":{"screenX":0,"screenY":0,"deltaX":0,"deltaY":0}}`|
-|`iot-2/cmd/<commandId>/fmt/json`|`iot-2/cmd/light/fmt/json`|`{"d":{"light":"toggle"}}`|
+|`iot-2/cmd/<commandId>/fmt/json`|`iot-2/cmd/light/fmt/json`|`{"d":{"light":"toggle"}}`<br/>`{"d":{"light":"on"}}`<br/>`{"d":{"light":"off"}}`|
 
 For more information on the MQTT protocol, see http://mqtt.org/
 
