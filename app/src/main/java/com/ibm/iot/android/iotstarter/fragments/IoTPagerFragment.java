@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014-2015 IBM Corp.
+ * Copyright (c) 2014-2016 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -12,6 +12,7 @@
  *
  * Contributors:
  *    Mike Robertson - initial contribution
+ *    Aldo Eisma - fix occasional stale reference to drawingView
  *******************************************************************************/
 package com.ibm.iot.android.iotstarter.fragments;
 
@@ -42,7 +43,6 @@ import org.eclipse.paho.client.mqttv3.MqttException;
  */
 public class IoTPagerFragment extends IoTStarterPagerFragment {
     private final static String TAG = IoTPagerFragment.class.getName();
-    private DrawingView drawingView;
 
     /**************************************************************************
      * Fragment functions for establishing the fragment
@@ -122,7 +122,7 @@ public class IoTPagerFragment extends IoTStarterPagerFragment {
             }
         });
 
-        drawingView = (DrawingView) getActivity().findViewById(R.id.drawing);
+        DrawingView drawingView = (DrawingView) getActivity().findViewById(R.id.drawing);
         drawingView.setContext(context);
     }
 
@@ -229,6 +229,7 @@ public class IoTPagerFragment extends IoTStarterPagerFragment {
             processAccelEvent();
         } else if (data.equals(Constants.COLOR_EVENT)) {
             Log.d(TAG, "Updating background color");
+            DrawingView drawingView = (DrawingView) getActivity().findViewById(R.id.drawing);
             drawingView.setBackgroundColor(app.getColor());
         } else if (data.equals(Constants.ALERT_EVENT)) {
             String message = intent.getStringExtra(Constants.INTENT_DATA_MESSAGE);
