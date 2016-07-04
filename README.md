@@ -79,6 +79,9 @@ Required:
 In order to really see this demo do something, you must have an application to consume its data and publish data back
 to the IoT Starter application. For examples, refer to the [IoT Starter demo](http://m2m.demos.ibm.com/iotstarter.html).
 
+The IoT Starter application can also be used in combination with the [Context Mapping and Driver Behavior tutorial] (https://github.com/IBM-Bluemix/car-data-management).
+The Accelerometer events include the GPS tracking properties required for the context mapping and driver behavior services.  
+
 ##Resources
 - [IoT Starter](http://m2m.demos.ibm.com/iotstarter.html)
 - [IoT Starter for iOS](https://github.com/ibm-messaging/iot-starter-for-ios)

@@ -13,6 +13,7 @@
  * Contributors:
  *    Mike Robertson - initial contribution
  *    Aldo Eisma - location update logic fixed and updated for Android M
+ *    Aldo Eisma - add bearing and speed to acceleration message
  *******************************************************************************/
 package com.ibm.iot.android.iotstarter.utils;
 
@@ -119,9 +120,9 @@ public class LocationUtils implements LocationListener {
         criteria.setPowerRequirement(Criteria.POWER_LOW);
         criteria.setAccuracy(Criteria.ACCURACY_FINE);
         criteria.setAltitudeRequired(false);
-        criteria.setBearingRequired(false);
+        criteria.setBearingRequired(true);
         criteria.setCostAllowed(true);
-        criteria.setSpeedRequired(false);
+        criteria.setSpeedRequired(true);
         return criteria;
     }
 }
