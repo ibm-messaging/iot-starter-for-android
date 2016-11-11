@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014-2015 IBM Corp.
+ * Copyright (c) 2014-2016 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -12,22 +12,32 @@
  *
  * Contributors:
  *    Mike Robertson - initial contribution
+ *    Aldo Eisma - location update and light control fixed, updated for Android M
  *******************************************************************************/
 package com.ibm.iot.android.iotstarter;
 
+import android.annotation.TargetApi;
 import android.app.Application;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraManager;
 import android.location.Location;
 import android.os.Build;
 import android.util.Log;
+
 import com.ibm.iot.android.iotstarter.iot.IoTDevice;
 import com.ibm.iot.android.iotstarter.utils.Constants;
 import com.ibm.iot.android.iotstarter.utils.DeviceSensor;
+import com.ibm.iot.android.iotstarter.utils.LocationUtils;
 import com.ibm.iot.android.iotstarter.utils.MyIoTCallbacks;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -68,6 +78,7 @@ public class IoTStarterApplication extends Application {
     private DeviceSensor deviceSensor;
     private Location currentLocation;
     private Camera camera;
+    private String cameraId;
 
     // Message log for log activity
     private final ArrayList<String> messageLog = new ArrayList<String>();
@@ -116,6 +127,7 @@ public class IoTStarterApplication extends Application {
      * Called when old application stored settings values are found.
      * Converts old stored settings into new profile setting.
      */
+    @TargetApi(value = 11)
     private void createNewDefaultProfile() {
         Log.d(TAG, "organization not null. compat profile setup");
         // If old stored property settings exist, use them to create a new default profile.
@@ -151,6 +163,7 @@ public class IoTStarterApplication extends Application {
     /**
      * Load existing profiles from application stored settings.
      */
+    @TargetApi(value = 11)
     private void loadProfiles() {
         // Compatibility
         if (settings.getString(Constants.ORGANIZATION, null) != null) {
@@ -205,6 +218,9 @@ public class IoTStarterApplication extends Application {
     public void toggleAccel() {
         this.setAccelEnabled(!this.isAccelEnabled());
         if (connected && accelEnabled) {
+            // Enable location updates when device is already connected
+            LocationUtils locUtils = LocationUtils.getInstance(this);
+            locUtils.connect();
             // Device Sensor was previously disabled, and the device is connected, so enable the sensor
             if (deviceSensor == null) {
                 deviceSensor = DeviceSensor.getInstance(this);
@@ -214,28 +230,75 @@ public class IoTStarterApplication extends Application {
             // Device Sensor was previously enabled, and the device is connected, so disable the sensor
             if (deviceSensor != null) {
                 deviceSensor.disableSensor();
+                // Disable location updates when device is disconnected
+                LocationUtils locUtils = LocationUtils.getInstance(this);
+                locUtils.disconnect();
             }
         }
     }
 
     /**
      * Turn flashlight on or off when a light command message is received.
+     * @param newState Toggle light when null, otherwise switch on or off.
      */
-    public void handleLightMessage() {
+    @TargetApi(value = 23)
+    public void handleLightMessage(Boolean newState) {
         Log.d(TAG, ".handleLightMessage() entered");
         if (this.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
-            if (!isCameraOn) {
-                Log.d(TAG, "FEATURE_CAMERA_FLASH true");
-                camera = Camera.open();
-                Camera.Parameters p = camera.getParameters();
-                p.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
-                camera.setParameters(p);
-                camera.startPreview();
-                isCameraOn = true;
+            Log.d(TAG, "FEATURE_CAMERA_FLASH true");
+            boolean setCameraOn = newState == null ? !isCameraOn : newState.booleanValue();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                /*
+                 *  A new API to use the camera flash light as torch is available.
+                 */
+                CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+                if (setCameraOn && !isCameraOn) {
+                    try {
+                        String[] cameraIds = manager.getCameraIdList();
+                        for (int i = 0; i < cameraIds.length && !isCameraOn; i++) {
+                            cameraId = cameraIds[i];
+                            CameraCharacteristics cameraCharacteristics = manager.getCameraCharacteristics(cameraId);
+                            if (cameraCharacteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE)) {
+                                manager.setTorchMode(cameraId, true);
+                                isCameraOn = true;
+                            }
+                        }
+                    } catch (CameraAccessException e) {
+                        Log.w(TAG, e);
+                    }
+                } else if (!setCameraOn && isCameraOn) {
+                    try {
+                        isCameraOn = false;
+                        manager.setTorchMode(cameraId, false);
+                    } catch (CameraAccessException e) {
+                        Log.w(TAG, e);
+                    }
+                }
             } else {
-                camera.stopPreview();
-                camera.release();
-                isCameraOn = false;
+                /*
+                 *  Use deprecated Camera API.
+                 */
+                if (setCameraOn && !isCameraOn) {
+                    Log.d(TAG, "FEATURE_CAMERA_FLASH true");
+                    camera = Camera.open();
+                    Camera.Parameters p = camera.getParameters();
+                    p.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+                    camera.setParameters(p);
+                    /*
+                     *  On some devices a surface is required to be able to control the flash.
+                     */
+                    try {
+                        camera.setPreviewTexture(new SurfaceTexture(0));
+                    } catch (IOException e) {
+                        Log.w(TAG, e);
+                    }
+                    camera.startPreview();
+                    isCameraOn = true;
+                } else if (!setCameraOn && isCameraOn) {
+                    camera.stopPreview();
+                    camera.release();
+                    isCameraOn = false;
+                }
             }
         } else {
             Log.d(TAG, "FEATURE_CAMERA_FLASH false");
@@ -246,6 +309,7 @@ public class IoTStarterApplication extends Application {
      * Overwrite an existing profile in the stored application settings.
      * @param newProfile The profile to save.
      */
+    @TargetApi(value = 11)
     public void overwriteProfile(IoTDevice newProfile) {
         int currentAPIVersion = Build.VERSION.SDK_INT;
         if (currentAPIVersion >= Build.VERSION_CODES.HONEYCOMB) {
@@ -271,6 +335,7 @@ public class IoTStarterApplication extends Application {
      * Save the profile to the application stored settings.
      * @param profile The profile to save.
      */
+    @TargetApi(value = 11)
     public void saveProfile(IoTDevice profile) {
         int currentAPIVersion = Build.VERSION.SDK_INT;
         if (currentAPIVersion >= Build.VERSION_CODES.HONEYCOMB) {

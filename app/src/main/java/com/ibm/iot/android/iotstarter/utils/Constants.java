@@ -77,6 +77,6 @@ public class Constants {
     public final static int ERROR_BROKER_UNAVAILABLE = 3;
 
     // Location Services
-    public final static int LOCATION_MIN_TIME = 30000;
+    public final static int LOCATION_MIN_TIME = 1000;
     public final static float LOCATION_MIN_DISTANCE = 5;
 }
