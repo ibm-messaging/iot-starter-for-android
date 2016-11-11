@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014-2015 IBM Corp.
+ * Copyright (c) 2014-2016 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -12,6 +12,7 @@
  *
  * Contributors:
  *    Mike Robertson - initial contribution
+ *    Aldo Eisma - add bearing and speed to acceleration message
  *******************************************************************************/
 package com.ibm.iot.android.iotstarter.utils;
 
@@ -43,6 +44,7 @@ public class DeviceSensor implements SensorEventListener {
     private final Sensor magnetometer;
     private final Context context;
     private Timer timer;
+    private long tripId;
     private boolean isEnabled = false;
 
     private DeviceSensor(Context context) {
@@ -73,6 +75,7 @@ public class DeviceSensor implements SensorEventListener {
         if (!isEnabled) {
             sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
             sensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_NORMAL);
+            tripId = System.currentTimeMillis()/1000;
             timer = new Timer();
             timer.scheduleAtFixedRate(new SendTimerTask(), 1000, 1000);
             isEnabled = true;
@@ -153,11 +156,15 @@ public class DeviceSensor implements SensorEventListener {
 
             double lon = 0.0;
             double lat = 0.0;
+            float heading = 0.0f;
+            float speed = 0.0f;
             if (app.getCurrentLocation() != null) {
                 lon = app.getCurrentLocation().getLongitude();
                 lat = app.getCurrentLocation().getLatitude();
+                heading = app.getCurrentLocation().getBearing();
+                speed = app.getCurrentLocation().getSpeed() * 3.6f;
             }
-            String messageData = MessageFactory.getAccelMessage(G, O, yaw, lon, lat);
+            String messageData = MessageFactory.getAccelMessage(G, O, yaw, lon, lat, heading, speed, tripId);
 
             try {
                 // create ActionListener to handle message published results

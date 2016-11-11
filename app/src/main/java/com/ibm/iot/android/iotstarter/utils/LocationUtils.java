@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014-2015 IBM Corp.
+ * Copyright (c) 2014-2016 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -12,6 +12,8 @@
  *
  * Contributors:
  *    Mike Robertson - initial contribution
+ *    Aldo Eisma - location update logic fixed and updated for Android M
+ *    Aldo Eisma - add bearing and speed to acceleration message
  *******************************************************************************/
 package com.ibm.iot.android.iotstarter.utils;
 
@@ -63,10 +65,12 @@ public class LocationUtils implements LocationListener {
             return;
         }
 
-        // register for location updates
+        // register for location updates, if location provider and permission are available
         String bestProvider = locationManager.getBestProvider(criteria, false);
-        locationManager.requestLocationUpdates(bestProvider, Constants.LOCATION_MIN_TIME, Constants.LOCATION_MIN_DISTANCE, this);
-        app.setCurrentLocation(locationManager.getLastKnownLocation(locationProvider));
+        if (bestProvider != null) {
+            locationManager.requestLocationUpdates(bestProvider, Constants.LOCATION_MIN_TIME, Constants.LOCATION_MIN_DISTANCE, this);
+            app.setCurrentLocation(locationManager.getLastKnownLocation(locationProvider));
+        }
     }
 
     /**
@@ -116,9 +120,9 @@ public class LocationUtils implements LocationListener {
         criteria.setPowerRequirement(Criteria.POWER_LOW);
         criteria.setAccuracy(Criteria.ACCURACY_FINE);
         criteria.setAltitudeRequired(false);
-        criteria.setBearingRequired(false);
+        criteria.setBearingRequired(true);
         criteria.setCostAllowed(true);
-        criteria.setSpeedRequired(false);
+        criteria.setSpeedRequired(true);
         return criteria;
     }
 }

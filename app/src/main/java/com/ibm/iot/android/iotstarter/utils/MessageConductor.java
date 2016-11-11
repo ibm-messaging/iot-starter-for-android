@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014-2015 IBM Corp.
+ * Copyright (c) 2014-2016 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -12,6 +12,7 @@
  *
  * Contributors:
  *    Mike Robertson - initial contribution
+ *    Aldo Eisma - light can now be controlled with toggle, on and off
  *******************************************************************************/
 package com.ibm.iot.android.iotstarter.utils;
 
@@ -85,7 +86,18 @@ public class MessageConductor {
             context.sendBroadcast(actionIntent);
 
         } else if (topic.contains(Constants.LIGHT_EVENT)) {
-            app.handleLightMessage();
+            Log.d(TAG, "Light Event");
+            // Set light on or off, or toggle light otherwise.
+            String light = d.optString("light");
+            Boolean newState;
+            if ("on".equals(light)) {
+                newState = true;
+            } else if ("off".equals(light)) {
+                newState = false;
+            } else {
+                newState = null;
+            }
+            app.handleLightMessage(newState);
         } else if (topic.contains(Constants.TEXT_EVENT)) {
             int unreadCount = app.getUnreadCount();
             String messageText = d.getString("text");

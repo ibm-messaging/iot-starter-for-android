@@ -37,10 +37,10 @@ MQTT is a lightweight messaging protocol that supports publish/subscribe messagi
 The topics used by this application can be seen in the table below:
 
 ##Topics
-|Topic|Sample Topic|Sample Message|
+|Topic|Sample Topic|Sample Messages|
 |:---------- |:---------- |:------------|
 |`iot-2/evt/<eventId>/fmt/json`|`iot-2/evt/touchmove/fmt/json`|`{"d":{"screenX":0,"screenY":0,"deltaX":0,"deltaY":0}}`|
-|`iot-2/cmd/<commandId>/fmt/json`|`iot-2/cmd/light/fmt/json`|`{"d":{"light":"toggle"}}`|
+|`iot-2/cmd/<commandId>/fmt/json`|`iot-2/cmd/light/fmt/json`|`{"d":{"light":"toggle"}}`<br/>`{"d":{"light":"on"}}`<br/>`{"d":{"light":"off"}}`|
 
 For more information on the MQTT protocol, see http://mqtt.org/.
 
@@ -78,6 +78,9 @@ Required:
 ##Notes
 In order to really see this demo do something, you must have an application to consume its data and publish data back
 to the IoT Starter application. For examples, refer to the [IoT Starter demo](http://m2m.demos.ibm.com/iotstarter.html).
+
+The IoT Starter application can also be used in combination with the [Context Mapping and Driver Behavior tutorial] (https://github.com/IBM-Bluemix/car-data-management).
+The Accelerometer events include the GPS tracking properties required for the context mapping and driver behavior services.  
 
 ##Resources
 - [IoT Starter](http://m2m.demos.ibm.com/iotstarter.html)
