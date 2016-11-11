@@ -1,0 +1,8 @@
+.gradle/
+.idea/
+app/build/
+build/generated/
+build/intermediates
+
+local.properties
+

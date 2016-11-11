@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="org.eclipse.paho.client.mqttv3">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/app/libs/org.eclipse.paho.client.mqttv3.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
