@@ -84,6 +84,7 @@ public class LoginPagerFragment extends IoTStarterPagerFragment {
                 public void onReceive(Context context, Intent intent) {
                     Log.d(TAG, ".onReceive() - Received intent for loginBroadcastReceiver");
                     processIntent(intent);
+                    Log.d(TAG, ".onReceive() - exit");
                 }
             };
         }
@@ -271,7 +272,9 @@ public class LoginPagerFragment extends IoTStarterPagerFragment {
                     }
 
                     MyIoTActionListener listener = new MyIoTActionListener(context, Constants.ActionStateStatus.CONNECTING);
+                    //start connection - if this method returns, connection has not yet happened
                     iotClient.connectDevice(app.getMyIoTCallbacks(), listener, factory);
+
                 } catch (MqttException e) {
                     if (e.getReasonCode() == (Constants.ERROR_BROKER_UNAVAILABLE)) {
                         // error while connecting to the broker - send an intent to inform the user
@@ -293,6 +296,7 @@ public class LoginPagerFragment extends IoTStarterPagerFragment {
                 // Disconnect failed
             }
         }
+        Log.d(TAG, ".handleActivate() exit");
     }
 
     /**
@@ -343,6 +347,9 @@ public class LoginPagerFragment extends IoTStarterPagerFragment {
             processDisconnectIntent();
         } else if (data.equals(Constants.ALERT_EVENT)) {
             String message = intent.getStringExtra(Constants.INTENT_DATA_MESSAGE);
+            //also log message
+            logToPage(message);
+            //popup alert
             new AlertDialog.Builder(getActivity())
                     .setTitle(getResources().getString(R.string.alert_dialog_title))
                     .setMessage(message)
@@ -351,6 +358,7 @@ public class LoginPagerFragment extends IoTStarterPagerFragment {
                         }
                     }).show();
         }
+        Log.d(TAG, ".processIntent() exit");
     }
 
     /**
@@ -361,15 +369,7 @@ public class LoginPagerFragment extends IoTStarterPagerFragment {
         Log.d(TAG, ".processConnectIntent() entered");
         updateConnectedValues();
 
-        // Log message with the following format:
-        // [yyyy-mm-dd hh:mm:ss.S] Connected to server:
-        // <message text>
-        Date date = new Date();
-        String logMessage = "["+new Timestamp(date.getTime())+"] Connected to server";
-        app.getMessageLog().add(logMessage);
-        Intent actionIntent = new Intent(Constants.APP_ID + Constants.INTENT_LOG);
-        actionIntent.putExtra(Constants.INTENT_DATA, Constants.TEXT_EVENT);
-        context.sendBroadcast(actionIntent);
+        logToPage("Connected to server");
 
         if (app.isAccelEnabled()) {
             LocationUtils locUtils = LocationUtils.getInstance(context);
@@ -399,15 +399,7 @@ public class LoginPagerFragment extends IoTStarterPagerFragment {
         ((TextView) getActivity().findViewById(R.id.isConnected)).setText(this.getString(R.string.is_connected));
         activateButton.setText(getResources().getString(R.string.activate_button));
 
-        // Log message with the following format:
-        // [yyyy-mm-dd hh:mm:ss.S] Received alert:
-        // <message text>
-        Date date = new Date();
-        String logMessage = "["+new Timestamp(date.getTime())+"] Disonnected from server";
-        app.getMessageLog().add(logMessage);
-        Intent actionIntent = new Intent(Constants.APP_ID + Constants.INTENT_LOG);
-        actionIntent.putExtra(Constants.INTENT_DATA, Constants.TEXT_EVENT);
-        context.sendBroadcast(actionIntent);
+        logToPage("Disonnected from server");
 
         if (app.getDeviceSensor() != null && app.isAccelEnabled()) {
             LocationUtils locUtils = LocationUtils.getInstance(context);
@@ -416,6 +408,21 @@ public class LoginPagerFragment extends IoTStarterPagerFragment {
                 locUtils.disconnect();
             }
         }
+        Log.d(TAG, ".processDisconnectIntent() exit");
     }
 
+    /**
+     * Log message to the log page in the app. Add timestamp.
+     * @param message
+     */
+    private void logToPage(String message){
+        // Log message with the following format:
+        // [yyyy-mm-dd hh:mm:ss.S] message
+        Date date = new Date();
+        String logMessage = "["+new Timestamp(date.getTime())+"]:"+message;
+        app.getMessageLog().add(logMessage);
+        Intent actionIntent = new Intent(Constants.APP_ID + Constants.INTENT_LOG);
+        actionIntent.putExtra(Constants.INTENT_DATA, Constants.TEXT_EVENT);
+        context.sendBroadcast(actionIntent);
+    }
 }
