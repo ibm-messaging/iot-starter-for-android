@@ -27,6 +27,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 /**
  * This class implements the IMqttActionListener interface of the MQTT Client.
  * It provides the functionality for handling the success or failure of MQTT API calls.
+ * One instance should only be used for one connection.
  */
 public class MyIoTActionListener implements IoTActionListener {
 
@@ -35,6 +36,7 @@ public class MyIoTActionListener implements IoTActionListener {
     private final Context context;
     private final Constants.ActionStateStatus action;
     private final IoTStarterApplication app;
+
 
     public MyIoTActionListener(Context context, Constants.ActionStateStatus action) {
         this.context = context;
@@ -70,6 +72,7 @@ public class MyIoTActionListener implements IoTActionListener {
                 break;
         }
     }
+
 
     /**
      * Determine the type of callback that failed.
@@ -122,9 +125,9 @@ public class MyIoTActionListener implements IoTActionListener {
 
         String runningActivity = app.getCurrentRunningActivity();
         //if (runningActivity != null && runningActivity.equals(LoginPagerFragment.class.getName())) {
-            Intent actionIntent = new Intent(Constants.APP_ID + Constants.INTENT_LOGIN);
-            actionIntent.putExtra(Constants.INTENT_DATA, Constants.INTENT_DATA_CONNECT);
-            context.sendBroadcast(actionIntent);
+        Intent actionIntent = new Intent(Constants.APP_ID + Constants.INTENT_LOGIN);
+        actionIntent.putExtra(Constants.INTENT_DATA, Constants.INTENT_DATA_CONNECT);
+        context.sendBroadcast(actionIntent);
         //}
     }
 
@@ -164,17 +167,28 @@ public class MyIoTActionListener implements IoTActionListener {
      */
     private void handleConnectFailure(Throwable throwable) {
         Log.e(TAG, ".handleConnectFailure() entered");
-        Log.e(TAG, ".handleConnectFailure() - Failed with exception", throwable.getCause());
+        Log.e(TAG, ".handleConnectFailure() - Failed with exception", throwable );
         throwable.printStackTrace();
 
         app.setConnected(false);
 
+        //broadcast disconnect event
         //String runningActivity = app.getCurrentRunningActivity();
         //if (runningActivity != null && runningActivity.equals(LoginPagerFragment.class.getName())) {
-            Intent actionIntent = new Intent(Constants.APP_ID + Constants.INTENT_LOGIN);
-            actionIntent.putExtra(Constants.INTENT_DATA, Constants.INTENT_DATA_DISCONNECT);
-            context.sendBroadcast(actionIntent);
+        Intent actionIntent = new Intent(Constants.APP_ID + Constants.INTENT_LOGIN);
+        actionIntent.putExtra(Constants.INTENT_DATA, Constants.INTENT_DATA_DISCONNECT);
+        context.sendBroadcast(actionIntent);
         //}
+
+        //also broadcast an alert event so user sees error message
+        String NL = System.getProperty("line.separator");
+        String errMsg = "Failed to connect to Watson IoT: "+NL+throwable;
+        Intent alertIntent = new Intent(Constants.APP_ID + Constants.INTENT_LOGIN);
+        alertIntent.putExtra(Constants.INTENT_DATA, Constants.ALERT_EVENT);
+        alertIntent.putExtra(Constants.INTENT_DATA_MESSAGE, errMsg);
+        context.sendBroadcast(alertIntent);
+
+        Log.e(TAG, ".handleConnectFailure() exit");
     }
 
     /**
