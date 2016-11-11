@@ -1,8 +1,12 @@
+.gitignore
+
 .gradle/
 .idea/
 app/build/
 build/generated/
+gradle/
+
 build/intermediates
-
 local.properties
-
+gradlew
+gradlew.bat
