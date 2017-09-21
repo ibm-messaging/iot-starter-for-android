@@ -1,5 +1,6 @@
 .gitignore
 
+*.iml
 .gradle/
 .idea/
 app/build/
