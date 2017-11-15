@@ -53,7 +53,7 @@ In order to connect to Quickstart, all you need to do is specify 'quickstart' as
 Once the app is connected, you can see the data visualized by going to [Quickstart](https://quickstart.internetofthings.ibmcloud.com/) and entering the same device-id in the MAC address field.
 
 ### 2. Connect to an IoT organization as a registered device
-In order to try the application as a registered device, you must have a Watson IoT Platform organization. This can be done by signing up for an IBM Bluemix trial and creating an instance of the Internet of Things Platform service. This will create an  organization where you can register devices. Next, you must register your device with your organization. When registering your device, create a new device type called `Android` (case sensitive). More detailed instructions on registering devices can be found in the [Watson IoT Platform documentation](https://docs.internetofthings.ibmcloud.com/index.html).
+In order to try the application as a registered device, you must have a Watson IoT Platform organization. This can be done by signing up for an IBM Cloud trial and creating an instance of the Internet of Things Platform service. This will create an  organization where you can register devices. Next, you must register your device with your organization. When registering your device, create a new device type called `Android` (case sensitive). More detailed instructions on registering devices can be found in the [Watson IoT Platform documentation](https://docs.internetofthings.ibmcloud.com/index.html).
 
 On launching the application for the first time, you will need to enter your credentials to connect your device to Watson IoT Platform. The required information to connect your device includes:
 
@@ -65,8 +65,8 @@ Once you have entered the necessary credentials, you may activate your device as
 
 ## Prerequisites
 Required:
-- An [IBM Bluemix](https://console.ng.bluemix.net/) account. A 30 day trial account is free.
-- An Internet of Things Platform service registered in Bluemix.
+- An [IBM Cloud](https://console.ng.bluemix.net/) account. A 30 day trial account is free.
+- An Internet of Things Platform service registered in IBM Cloud.
 - An Android SDK installation
 
 ## Installation
@@ -85,7 +85,7 @@ The Accelerometer events include the GPS tracking properties required for the co
 ## Resources
 - [IoT Starter for iOS](https://github.com/ibm-messaging/iot-starter-for-ios)
 - [IBM Watson IoT Platform](https://internetofthings.ibmcloud.com/#/)
-- [IBM Bluemix](https://console.ng.bluemix.net/)
+- [IBM Cloud](https://console.ng.bluemix.net/)
 - [IoT Recipes](https://developer.ibm.com/iot/)
 - [Quickstart](http://quickstart.internetofthings.ibmcloud.com/#/)
 - [Node-RED](http://nodered.org/)
