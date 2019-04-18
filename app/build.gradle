@@ -2,7 +2,6 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion '26.0.2'
 
     defaultConfig {
         applicationId "com.ibm.iot.android.iotstarter"
@@ -26,7 +25,7 @@ repositories {
 
 dependencies {
     compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.1'
-    compile ('org.eclipse.paho:org.eclipse.paho.android.service:1.0.2') {
+    compile ('org.eclipse.paho:org.eclipse.paho.android.service:1.1.1') {
         exclude module: 'support-v4'
     }
     compile 'com.google.android.gms:play-services-base:10.0.1'
