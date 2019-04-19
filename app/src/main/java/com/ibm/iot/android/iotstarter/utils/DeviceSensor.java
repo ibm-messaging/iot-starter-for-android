@@ -164,7 +164,10 @@ public class DeviceSensor implements SensorEventListener {
                 heading = app.getCurrentLocation().getBearing();
                 speed = app.getCurrentLocation().getSpeed() * 3.6f;
             }
-            String messageData = MessageFactory.getAccelMessage(G, O, yaw, lon, lat, heading, speed, tripId);
+            String sn = app.getDeviceId();
+            String ip = app.getLocalIpAddress();
+
+            String messageData = MessageFactory.getAccelMessage(G, O, yaw, lon, lat, heading, speed, tripId, sn, ip);
 
             try {
                 // create ActionListener to handle message published results

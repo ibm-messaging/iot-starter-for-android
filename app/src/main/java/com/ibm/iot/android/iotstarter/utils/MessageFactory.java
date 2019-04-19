@@ -39,7 +39,7 @@ public class MessageFactory {
      * @param tripId Long containing trip identifier
      * @return String containing JSON formatted message
      */
-    public static String getAccelMessage(float G[], float O[], float yaw, double lon, double lat, float heading, float speed, long tripId) {
+    public static String getAccelMessage(float G[], float O[], float yaw, double lon, double lat, float heading, float speed, long tripId, String sn, String ip) {
         // Android does not support the X pattern, so use Z and insert ':' if required.
         DateFormat isoDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 //        isoDateTimeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -48,7 +48,7 @@ public class MessageFactory {
             int pos = isoTimestamp.length() - 2;
             isoTimestamp = isoTimestamp.substring(0, pos) + ':' + isoTimestamp.substring(pos);
         }
-        return "{ \"d\": {" +
+        return "{ \"action\": \"keepalive\", \"serialno\": \"" + sn + "\", \"ipaddress\": \"" + ip + "\", \"d\": {" +
                 "\"acceleration_x\":" + G[0] + ", " +
                 "\"acceleration_y\":" + G[1] + ", " +
                 "\"acceleration_z\":" + G[2] + ", " +
